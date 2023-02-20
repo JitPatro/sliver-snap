@@ -17,6 +17,11 @@ grade: stable
 confinement: strict
 
 
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+
 environment:
   LANG: C.UTF-8
   LC_ALL: C.UTF-8
