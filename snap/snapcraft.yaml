@@ -99,6 +99,7 @@ parts:
       - flex
       - git
       - m4
+      - curl
       - bzip2
       - texinfo
 
