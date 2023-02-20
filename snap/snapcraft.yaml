@@ -67,7 +67,7 @@ parts:
 # Had to compile git statically because the Ubuntu Repo provided git occupies a lot of space. Sliver uses git to download stuff.
   git:
     plugin: make
-    source: git://git.kernel.org/pub/scm/git/git.git
+    source: https://git.kernel.org/pub/scm/git/git.git
     source-type: git
     build-packages:
       - dh-autoreconf
