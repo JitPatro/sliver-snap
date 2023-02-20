@@ -1,0 +1,143 @@
+name: sliver
+base: core22
+adopt-info: sliver
+
+summary: Adversary Emulation Framework
+description: |
+  Sliver is an open source cross-platform adversary emulation/red team framework, it can be used by organizations of all sizes to perform security testing. Sliver's implants support C2 over Mutual TLS (mTLS), WireGuard, HTTP(S), and DNS and are dynamically compiled with per-binary asymmetric encryption keys.
+
+  Usage:- https://github.com/JitPatro/sliver-snap/tree/main#installation
+
+  Official Guide:- https://github.com/BishopFox/sliver/wiki/Getting-Started
+
+  Community Guides:- https://github.com/BishopFox/sliver/wiki/Community-Guides
+
+
+grade: stable
+confinement: strict
+
+
+environment:
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  SLIVER_ROOT_DIR: $HOME/.sliver/
+  SLIVER_NO_UPDATE_CHECK: "true"
+  SLIVER_WINDOWS_CC_64: $SNAP/bin/x86_64-w64-mingw32-gcc
+  SLIVER_WINDOWS_CC_32: $SNAP/bin/i686-w64-mingw32-gcc
+  SLIVER_WINDOWS_CXX_64: $SNAP/bin/x86_64-w64-mingw32-gcc
+  SLIVER_WINDOWS_CXX_32: $SNAP/bin/i686-w64-mingw32-gcc
+  PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$SNAP/opt/metasploit-framework/bin:$SNAP/opt/metasploit-framework/embedded/bin:$PATH
+
+
+hooks:
+  install:
+    plugs: [home]
+  configure:
+    plugs: [home, network, network-bind]
+
+# Plug to connect with available slot in Metasploit Framework
+plugs:
+  metasploit:
+    interface: content
+    content: executables
+    target: $SNAP
+
+
+apps:
+
+  sliver:
+    command: bin/sliver-client
+    plugs: [home, network, network-bind]
+
+  server:
+    command: bin/sliver-server
+    plugs: [home, network, network-bind]
+
+  service:
+    command: bin/server-wrapper
+    reload-command: bin/server-wrapper
+    restart-delay: 3s
+    plugs: [home, network, network-bind]
+    daemon: simple
+    restart-condition: on-failure
+
+
+parts:
+
+# Had to compile git statically because the Ubuntu Repo provided git occupies a lot of space. Sliver uses git to download stuff.
+  git:
+    plugin: make
+    source: git://git.kernel.org/pub/scm/git/git.git
+    source-type: git
+    build-packages:
+      - dh-autoreconf
+      - install-info
+      - gettext
+      - libcurl4-gnutls-dev
+      - libexpat1-dev
+      - libssl-dev
+      - libz-dev
+
+    override-build: |
+      make configure
+      ./configure CFLAGS="-static" --prefix=${CRAFT_PART_INSTALL}
+      make install
+      rm ${CRAFT_PART_INSTALL}/bin/{gitk,git-*,scalar}
+
+    prime:
+      - -libexec/
+      - -share/
+
+# Compiling static mingw-w64 binaries with my custom modifications to the mingw-w64-build script. Removed all binaries except i686-w64-mingw32-gcc and x86_64-w64-mingw32-gcc required for Windows.
+  mingw:
+    after: [git]
+    plugin: make
+    source: https://github.com/GenialHacker/mingw-w64-build.git
+    build-packages:
+      - build-essential
+      - bison
+      - flex
+      - git
+      - m4
+      - bzip2
+      - texinfo
+
+    build-environment:
+      - GIT_EXEC_PATH: /usr/lib/git-core
+
+    override-build: |
+      ./mingw-w64-build --binutils-branch master --keep-artifacts -p ${CRAFT_PART_INSTALL} x86_64 i686
+      shopt -s extglob
+      rm -rf ${CRAFT_PART_INSTALL}/bin/{i686-w64-mingw32-!(gcc),x86_64-w64-mingw32-!(gcc)}
+
+    prime:
+      - -include/
+      - -lib/
+      - -libexec/
+      - -share/
+      - -i686-w64-mingw32/
+      - -x86_64-w64-mingw32/
+
+# The code for ".sliver-client" directory is not using the $HOME environment variable which is used by snaps to create user configuration. Modified the code to reflect the right folder.
+# Changed the "Dirty" keyword shown when using sliver-client built directly from Git. Sliver Makefile doesn't have an install target needed by the make plugin, which I added. 
+  sliver:
+    after: [mingw]
+    plugin: make
+    source: https://github.com/BishopFox/sliver.git
+    build-packages: [unzip, zip]
+    build-snaps: [go/latest/stable]
+
+    override-build: |
+      sed -i 's|SliverClientDirName = ".sliver-client"|SliverClientDirName = "snap/sliver/current/.sliver-client"|g' ./client/assets/assets.go
+      sed -i 's|" - %sDirty%s"|" - %sSnap%s"|g' ./client/console/console.go
+      echo -e '.PHONY: install\ninstall:\n\tmkdir -p "${CRAFT_PART_INSTALL}"/bin; cp ./sliver-* "${CRAFT_PART_INSTALL}"/bin' >> Makefile
+      craftctl default
+      craftctl set version=$(git describe)
+
+# Files responsible for the ability to manage sliver configuration. Also adds an wrapper around the sliver-server.
+  wrapper:
+    source: snap/local
+    plugin: dump
+    organize:
+      '*': bin/
+

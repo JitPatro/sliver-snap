@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+mkdir -p "$HOME/.sliver-client/configs"
+
+sliver-server operator --name `id -gn` --lhost localhost --save "$HOME/.sliver-client/configs"

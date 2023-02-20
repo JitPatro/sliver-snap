@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# source the utilities script
+. "$SNAP/bin/configuration-utilities"
+
+handle_env_vars()
+{
+        env_var="$(env_var)"
+
+       # run function from utilities script
+        set_env_var "$env_var"
+
+        # Restart sliver service to apply new config
+        snapctl restart sliver.service
+}
+handle_env_vars

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# source the utilities script
+. "$SNAP/bin/configuration-utilities"
+
+# call the http_port function from the management script
+SLIVER_DARWIN_CC_64="$(env_var)"
+export SLIVER_DARWIN_CC_64
+
+"$SNAP/bin/sliver-server" daemon

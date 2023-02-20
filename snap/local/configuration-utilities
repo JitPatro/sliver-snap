@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SLIVER_DARWIN_CC="/home/user/path-to-compiler"
+
+env_var()
+{
+        var="$(snapctl get darwin-cc)"
+        if [ -z "$var" ]; then
+                var="$SLIVER_DARWIN_CC"
+                set_env_var $var
+        fi
+        echo "$var"
+}
+
+set_env_var()
+{
+        snapctl set darwin-cc="$1"
+}
