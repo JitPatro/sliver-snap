@@ -3,7 +3,7 @@
 # source the utilities script
 . "$SNAP/bin/configuration-utilities"
 
-# call the http_port function from the management script
+# call the env_var function from the utilities script
 SLIVER_DARWIN_CC_64="$(env_var)"
 export SLIVER_DARWIN_CC_64
 
