@@ -130,7 +130,7 @@ parts:
     after: [mingw]
     plugin: make
     source: https://github.com/BishopFox/sliver.git
-    build-packages: [unzip, zip]
+    build-packages: [unzip, zip, upx-ucl]
     build-snaps: [go/latest/stable]
 
     override-build: |
@@ -138,6 +138,7 @@ parts:
       sed -i 's|" - %sDirty%s"|" - %sSnap%s"|g' ./client/console/console.go
       echo -e '.PHONY: install\ninstall:\n\tmkdir -p "${CRAFT_PART_INSTALL}"/bin; cp ./sliver-* "${CRAFT_PART_INSTALL}"/bin' >> Makefile
       craftctl default
+      upx -9 ${CRAFT_PART_INSTALL}/bin/sliver-server
       craftctl set version=$(git describe)
 
 # Files responsible for the ability to manage sliver configuration. Also adds an wrapper around the sliver-server.
