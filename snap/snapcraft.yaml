@@ -75,6 +75,7 @@ parts:
     source: https://git.kernel.org/pub/scm/git/git.git
     source-type: git
     build-packages:
+      - build-essential
       - dh-autoreconf
       - install-info
       - gettext
@@ -85,9 +86,11 @@ parts:
 
     override-build: |
       make configure
+      export LDFLAGS=-L/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
       ./configure CFLAGS="-static" --prefix=${CRAFT_PART_INSTALL}
       make install
       rm ${CRAFT_PART_INSTALL}/bin/{gitk,git-*,scalar}
+      strip ${CRAFT_PART_INSTALL}/bin/git
 
     prime:
       - -libexec/
