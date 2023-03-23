@@ -99,7 +99,7 @@ parts:
   mingw:
     after: [git]
     plugin: make
-    source: https://github.com/GenialHacker/mingw-w64-build.git
+    source: https://github.com/Xhoenix/mingw-w64-build.git
     build-packages:
       - build-essential
       - bison
