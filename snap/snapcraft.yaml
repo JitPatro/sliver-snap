@@ -72,8 +72,7 @@ parts:
 # Had to compile git statically because the Ubuntu Repo provided git occupies a lot of space. Sliver uses git to download stuff.
   git:
     plugin: make
-    source: https://git.kernel.org/pub/scm/git/git.git
-    source-type: git
+    source: https://git.kernel.org/pub/scm/git/git.git/snapshot/git-2.40.0.tar.gz
     build-packages:
       - build-essential
       - dh-autoreconf
@@ -83,14 +82,14 @@ parts:
       - libexpat1-dev
       - libssl-dev
       - libz-dev
+      - upx-ucl
 
     override-build: |
       make configure
-      export LDFLAGS=-L/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
       ./configure CFLAGS="-static" --prefix=${CRAFT_PART_INSTALL}
       make install
       rm ${CRAFT_PART_INSTALL}/bin/{gitk,git-*,scalar}
-      strip ${CRAFT_PART_INSTALL}/bin/git
+      strip ${CRAFT_PART_INSTALL}/bin/git; upx -9 ${CRAFT_PART_INSTALL}/bin/git
 
     prime:
       - -libexec/
