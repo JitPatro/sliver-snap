@@ -36,8 +36,11 @@ environment:
 
 layout:
   /etc/protocols:
-    symlink: $SNAP/etc/protocols
+    bind-file: $SNAP/etc/protocols
+  /etc/services:
+    bind-file: $SNAP/etc/services
 
+    
 hooks:
   install:
     plugs: [home]
