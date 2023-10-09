@@ -34,12 +34,13 @@ environment:
   PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$SNAP/opt/metasploit-framework/bin:$SNAP/opt/metasploit-framework/embedded/bin:$PATH
 
 
+layout:
+  /etc/protocols:
+    symlink: $SNAP/etc/protocols
+
 hooks:
   install:
     plugs: [home]
-    layout:
-      /etc/protocols:
-        symlink: $SNAP/etc/protocols
   configure:
     plugs: [home, network, network-bind]
 
