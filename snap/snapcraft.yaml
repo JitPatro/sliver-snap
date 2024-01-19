@@ -32,6 +32,7 @@ environment:
   SLIVER_WINDOWS_CXX_64: $SNAP/bin/x86_64-w64-mingw32-gcc
   SLIVER_WINDOWS_CXX_32: $SNAP/bin/i686-w64-mingw32-gcc
   PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$SNAP/opt/metasploit-framework/bin:$SNAP/opt/metasploit-framework/embedded/bin:$PATH
+  LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/opt/metasploit-framework/embedded/lib
 
 
 layout:
