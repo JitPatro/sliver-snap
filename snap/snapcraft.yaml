@@ -81,6 +81,7 @@ parts:
   git:
     plugin: make
     source: https://git.kernel.org/pub/scm/git/git.git/snapshot/git-2.49.0.tar.gz
+    source-type: tar
     build-packages:
       - build-essential
       - dh-autoreconf
