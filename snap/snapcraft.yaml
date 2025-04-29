@@ -81,6 +81,7 @@ parts:
   git:
     plugin: make
     source: https://kernel.googlesource.com/pub/scm/git/git
+    source-type: git
     build-packages:
       - build-essential
       - dh-autoreconf
